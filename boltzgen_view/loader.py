@@ -70,6 +70,29 @@ def load_metrics(design_dir: str | Path) -> pd.DataFrame:
     return df
 
 
+def find_refiltered_ids(design_dir: str | Path) -> set[str]:
+    """Return design IDs present in the sibling ``refiltered/`` directory.
+
+    Looks for any CSV file under ``{design_dir.parent}/refiltered/`` that
+    contains an ``id`` column.  Returns an empty set if the directory or a
+    suitable CSV is not found.
+    """
+    refiltered_dir = Path(design_dir).parent / "refiltered"
+    if not refiltered_dir.is_dir():
+        return set()
+
+    # Prefer the smallest CSV (most filtered); skip any without an 'id' column.
+    candidates = sorted(refiltered_dir.rglob("*.csv"), key=lambda p: p.stat().st_size)
+    for csv_path in candidates:
+        try:
+            df = pd.read_csv(csv_path, usecols=["id"])
+            return set(df["id"].astype(str))
+        except (ValueError, KeyError):
+            continue
+
+    return set()
+
+
 def find_cif_path(design_dir: str | Path, design_id: str) -> Path | None:
     """Return the refold CIF path for *design_id*, or None if not found."""
     p = Path(design_dir) / "refold_cif" / f"{design_id}.cif"

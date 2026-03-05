@@ -11,7 +11,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from IPython.display import display
 
-from .loader import find_cif_path
+from .loader import find_cif_path, find_refiltered_ids
 
 # Default axes shown in the parallel-coordinates plot (in order).
 # Columns absent from the dataframe are silently skipped.
@@ -65,6 +65,8 @@ class ParallelCoordsViewer:
         self.color_by = color_by if color_by in df.columns else None
         self.max_display = max_display
 
+        self._refiltered_ids: set[str] = find_refiltered_ids(self.design_dir)
+
         self._fig: go.FigureWidget | None = None
         self._display_df: pd.DataFrame | None = None
 
@@ -84,11 +86,40 @@ class ParallelCoordsViewer:
 
         self._display_df = display_df
 
+        if self._refiltered_ids and "id" in display_df.columns:
+            n_highlighted = display_df["id"].astype(str).isin(self._refiltered_ids).sum()
+            banner_text += f" <b style='color:red'>{n_highlighted} refiltered designs highlighted in red.</b>"
+
         dimensions = self._build_dimensions(display_df)
 
-        if self.color_by and self.color_by in display_df.columns:
-            color_vals = display_df[self.color_by].fillna(0).tolist()
+        if self._refiltered_ids and "id" in display_df.columns and self.color_by and self.color_by in display_df.columns:
+            # Viridis compressed into [0, 0.9]; red pinned at 1.0 for refiltered designs.
+            combined_colorscale = [
+                [0.0, "#440154"], [0.1, "#482878"], [0.2, "#3e4989"],
+                [0.3, "#31688e"], [0.4, "#26828e"], [0.5, "#1f9e89"],
+                [0.6, "#35b779"], [0.7, "#6ece58"], [0.8, "#b5de2b"],
+                [0.9, "#fde725"], [1.0, "red"],
+            ]
+            is_refiltered = display_df["id"].astype(str).isin(self._refiltered_ids)
+            raw = display_df[self.color_by].fillna(display_df[self.color_by].min())
+            lo, hi = raw.min(), raw.max()
+            normalized = (raw - lo) / (hi - lo) * 0.9 if hi > lo else raw * 0 + 0.45
+            color_vals = normalized.where(~is_refiltered, 1.0).tolist()
             color_opts: dict[str, Any] = dict(
+                color=color_vals,
+                colorscale=combined_colorscale,
+                showscale=False,
+            )
+        elif self._refiltered_ids and "id" in display_df.columns:
+            color_vals = display_df["id"].astype(str).isin(self._refiltered_ids).astype(int).tolist()
+            color_opts = dict(
+                color=color_vals,
+                colorscale=[[0, "rgba(180,180,180,0.3)"], [1, "red"]],
+                showscale=False,
+            )
+        elif self.color_by and self.color_by in display_df.columns:
+            color_vals = display_df[self.color_by].fillna(0).tolist()
+            color_opts = dict(
                 color=color_vals,
                 colorscale="Viridis",
                 showscale=False,
