@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "boltzgen-view"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "pandas",
+    "plotly>=5.0,<6.0",
+    "ipywidgets>=8.0",
+    "py3Dmol",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["boltzgen_view*"]
