@@ -9,7 +9,7 @@ Interactive parallel-coordinates viewer for [BoltzGen](https://github.com/Hannes
 BoltzGen's built-in plots are static scatter plots. They don't let you:
 
 - Interactively filter and select designs across multiple metrics simultaneously
-- See relationships between design features (RMSD, iPTM, ipSAE, PAE, H-bonds, delta SASA, salt bridges, etc.)
+- See relationships between design features (RMSD, ipTM, ipSAE, PAE, H-bonds, delta SASA, salt bridges, etc.)
 - Link selected designs directly to their predicted structures
 
 boltzgen-view addresses this with a Plotly parallel-coordinates plot inside a Jupyter notebook. Brush any axis to filter, then open the selected structures in your viewer of choice.
