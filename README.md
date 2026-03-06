@@ -21,16 +21,10 @@ conda env create -f environment.yml
 conda activate boltzgen-view
 ```
 
-Or with pip:
-
-```bash
-pip install -e .
-```
-
 ## Usage
 
 1. Open `notebooks/viewer.ipynb` in JupyterLab.
-2. Set `design_dir` to your BoltzGen output directory (the one containing `metrics.csv` and `refold_cif/`).
+2. Set `design_dir` to `intermediate_designs_inverse_folded` in your BoltzGen output directory.
 3. Adjust filters and thresholds as needed.
 4. Run all cells. Brush axes in the parallel-coordinates plot to select designs.
 5. Run the selection cell to get the filtered DataFrame and CIF paths.
