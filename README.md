@@ -2,8 +2,7 @@
 
 Interactive parallel-coordinates viewer for [BoltzGen](https://github.com/HannesStark/boltzgen) protein design outputs.
 
-![Parallel coordinates viewer](.github/images/unselected.png)
-![Parallel coordinates viewer](.github/images/selected.png)
+![Parallel coordinates viewer](.github/images/selection.gif)
 
 ## Motivation
 
